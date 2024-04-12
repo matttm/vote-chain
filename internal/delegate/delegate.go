@@ -12,6 +12,8 @@ import (
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/libp2p/go-libp2p/p2p/discovery/mdns"
+
+	"vote-chain/internal/messenger"
 )
 
 // DiscoveryInterval is how often we re-publish our mDNS records.
@@ -20,7 +22,11 @@ const DiscoveryInterval = time.Hour
 // DiscoveryServiceTag is used in our mDNS advertisements to discover other chat peers.
 const DiscoveryServiceTag = "pubsub-chat-example"
 
-func main() {
+type Delegate struct {
+	messenger *messenger.Messenger
+}
+
+func CreateDelegate() {
 	// parse some flags to set our nickname and the room to join
 	nickFlag := flag.String("nick", "", "nickname to use in chat. will be generated if empty")
 	roomFlag := flag.String("room", "awesome-chat-room", "name of chat room to join")
@@ -59,12 +65,6 @@ func main() {
 	cr, err := JoinChatRoom(ctx, floodsub, h.ID(), nick, room)
 	if err != nil {
 		panic(err)
-	}
-
-	// draw the UI
-	ui := NewChatUI(cr)
-	if err = ui.Run(); err != nil {
-		printErr("error running text UI: %s", err)
 	}
 }
 
