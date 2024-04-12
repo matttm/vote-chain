@@ -5,14 +5,9 @@ import (
 	"net/http"
 	"os"
 
-	_ "github.com/go-sql-driver/mysql"
-
-	"reddit-clone-backend/internal/auth"
-	database "reddit-clone-backend/internal/pkg/db/mysql"
-
 	cors "github.com/rs/cors"
 
-	"github.com/go-chi/chi"
+	chi "github.com/go-chi/chi/v5"
 )
 
 const defaultPort = "8080"
@@ -34,13 +29,6 @@ func main() {
 		AllowedHeaders:   []string{"Authorization", "Content-Type"},
 		Debug:            true,
 	}).Handler)
-
-	router.Use(auth.Middleware())
-
-	database.InitDB()
-	defer database.CloseDB()
-	database.Migrate()
-
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
+	log.Printf("Vote chain is listening on http://localhost:%s/", port)
 	log.Fatal(http.ListenAndServe(":"+port, router))
 }
