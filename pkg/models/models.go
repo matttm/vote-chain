@@ -4,4 +4,10 @@ package models
 type State struct {
 	blocks []Block
 }
-type Block struct{}
+type Block struct {
+	Id int
+	Hash string
+	PreviousHash ztring
+	Datan string
+	Nonce int
+}

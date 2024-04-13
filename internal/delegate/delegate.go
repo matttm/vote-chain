@@ -14,6 +14,8 @@ import (
 	"github.com/libp2p/go-libp2p/p2p/discovery/mdns"
 
 	"vote-chain/internal/messenger"
+	"vote-chain/pkg/models"
+	"vote-chain/pkg/topics"
 )
 
 // DiscoveryInterval is how often we re-publish our mDNS records.
@@ -24,9 +26,11 @@ const DiscoveryServiceTag = "pubsub-chat-example"
 
 type Delegate struct {
 	messenger *messenger.Messenger
+	state *models.State
 }
 
-func CreateDelegate() {
+func CreateDelegate() *Delegate {
+
 	// parse some flags to set our nickname and the room to join
 	nickFlag := flag.String("nick", "", "nickname to use in chat. will be generated if empty")
 	roomFlag := flag.String("room", "awesome-chat-room", "name of chat room to join")
