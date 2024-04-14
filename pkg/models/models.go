@@ -5,9 +5,9 @@ type State struct {
 	blocks []Block
 }
 type Block struct {
-	Id int
-	Hash string
-	PreviousHash ztring
-	Datan string
-	Nonce int
+	Id           int
+	Hash         string
+	PreviousHash string
+	Datan        string
+	Nonce        int
 }

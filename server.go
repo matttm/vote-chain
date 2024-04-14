@@ -7,6 +7,9 @@ import (
 
 	cors "github.com/rs/cors"
 
+	"vote-chain/internal/controllers"
+	"vote-chain/internal/delegate"
+
 	chi "github.com/go-chi/chi/v5"
 )
 
@@ -20,6 +23,8 @@ func main() {
 
 	router := chi.NewRouter()
 
+	d := delegate.CreateDelegate()
+
 	// Add CORS middleware around every request
 	// See https://github.com/rs/cors for full option listing
 	router.Use(cors.New(cors.Options{
@@ -29,6 +34,9 @@ func main() {
 		AllowedHeaders:   []string{"Authorization", "Content-Type"},
 		Debug:            true,
 	}).Handler)
+	ballotController := controllers.CreateBallotController(d)
+
+	router.Mount("/ballit", ballotController.Router())
 	log.Printf("Vote chain is listening on http://localhost:%s/", port)
 	log.Fatal(http.ListenAndServe(":"+port, router))
 }
