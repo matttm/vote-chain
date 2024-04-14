@@ -7,13 +7,13 @@ import (
 
 type Delegate struct {
 	messenger *messenger.Messenger
-	state     *models.State
+	State     *models.State
 }
 
 func CreateDelegate() *Delegate {
 	d := new(Delegate)
 	d.messenger = messenger.CreateMessenger()
-	d.state = nil
+	d.State = nil
 
 	d.messenger.ListenToVoteChain()
 	return d
