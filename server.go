@@ -36,7 +36,7 @@ func main() {
 	}).Handler)
 	ballotController := controllers.CreateBallotController(d)
 
-	router.Mount("/ballit", ballotController.Router())
+	router.Mount("/ballot", ballotController.Router())
 	log.Printf("Vote chain is listening on http://localhost:%s/", port)
 	log.Fatal(http.ListenAndServe(":"+port, router))
 }

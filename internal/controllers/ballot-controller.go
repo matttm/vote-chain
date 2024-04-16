@@ -24,8 +24,15 @@ func (b *BallotController) Router() chi.Router {
 }
 
 func (b *BallotController) getBallotHandler(w http.ResponseWriter, req *http.Request) {
-	println("Executing getBsllot request hsndler")
-	data := b.delegate.State
+	println("Executing getBallot request hsndler")
+	data := b.delegate.GetState()
 	finalResponseJson, _ := json.Marshal(data)
 	w.Write(finalResponseJson)
 }
+
+// func (b *BallotController) CastVoteHandler(w http.ResponseWriter, req *http.Request) {
+// 	println("Executing castVote request hsndler")
+// 	data := nil
+// 	finalResponseJson, _ := json.Marshal(data)
+// 	w.Write(finalResponseJson)
+// }

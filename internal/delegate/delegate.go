@@ -7,15 +7,18 @@ import (
 
 type Delegate struct {
 	messenger *messenger.Messenger
-	State     *models.State
+	state     *models.State
 }
 
 func CreateDelegate() *Delegate {
 	d := new(Delegate)
 	d.messenger = messenger.CreateMessenger()
-	d.State = nil
+	d.state = nil
 
 	d.messenger.ListenToVoteChain()
 	return d
+}
+func (d *Delegate) GetState() *models.State {
+	return d.state
 }
 func (d *Delegate) DestroyDelegate() {}

@@ -4,25 +4,23 @@ import (
 	"fmt"
 	"time"
 
+	"context"
+	"encoding/json"
+
 	"github.com/libp2p/go-libp2p"
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/libp2p/go-libp2p/p2p/discovery/mdns"
-	"context"
-	"encoding/json"
 
+	"vote-chain/internal/utilities"
 	"vote-chain/pkg/models"
 	"vote-chain/pkg/topics"
-	"vote-chain/internal/utilities"
 )
-
 
 // DiscoveryInterval is how often we re-publish our mDNS records.
 const DiscoveryInterval = time.Hour
 
-// DiscoveryServiceTag is used in our mDNS advertisements to discover other chat peers.
-const DiscoveryServiceTag = "pubsub-chat-example"
 // ChatRoomBufSize is the number of incoming messages to buffer for each topic.
 const ChatRoomBufSize = 128
 
@@ -37,11 +35,8 @@ type Messenger struct {
 	ps         *pubsub.PubSub
 	chainTopic *pubsub.Topic
 	blockTopic *pubsub.Topic
-	sub        *pubsub.Subscription
-
-	roomName string
-	self     peer.ID
-	nick     string
+	chainSub   *pubsub.Subscription
+	self       peer.ID
 }
 
 // discoveryNotifee gets notified when we find a new peer via mDNS discovery
@@ -49,10 +44,10 @@ type discoveryNotifee struct {
 	h host.Host
 }
 
-// type stateMessage struct {
-// 	Payload models.State
-// 	SenderID string
-// }
+//	type stateMessage struct {
+//		Payload models.State
+//		SenderID string
+//	}
 func CreateMessenger() *Messenger {
 	m := new(Messenger)
 	m.ctx = context.Background()
@@ -63,8 +58,6 @@ func CreateMessenger() *Messenger {
 	if err != nil {
 		panic(err)
 	}
-
-	// create a new PubSub service using the GossipSub router
 	floodsub, err := pubsub.NewFloodSub(m.ctx, h)
 	if err != nil {
 		panic(err)
@@ -99,7 +92,7 @@ func (msngr *Messenger) ListPeers() []peer.ID {
 // readLoop pulls messages from the pubsub topic and pushes them onto the Messages channel.
 func (msngr *Messenger) readLoop() {
 	for {
-		msg, err := msngr.sub.Next(msngr.ctx)
+		msg, err := msngr.chainSub.Next(msngr.ctx)
 		if err != nil {
 			close(msngr.StateChannel)
 			panic("Error occured reading sub")
@@ -108,6 +101,7 @@ func (msngr *Messenger) readLoop() {
 		if msg.ReceivedFrom == msngr.self {
 			panic("Error resding message from self")
 		}
+		println("Received message")
 		stateMessage := new(models.State)
 		err = json.Unmarshal(msg.Data, stateMessage)
 		if err != nil {
@@ -118,19 +112,18 @@ func (msngr *Messenger) readLoop() {
 	}
 }
 
-
 func (msngr *Messenger) ListenToVoteChain() {
 	// join the pubsub topic
-	topic := utilities.CreateTopicHandle(m.ps, topics.CHAIN)
-
+	topic := utilities.CreateTopicHandle(msngr.ps, topics.CHAIN)
 	// and subscribe to it
 	sub, err := topic.Subscribe()
 	if err != nil {
 		panic(err)
 	}
-	msngr.sub = sub
+	msngr.chainSub = sub
 	// start reading messages from the subscription in a loop
 	// ToDo:  put this kon its own thread
+	println("Listening to vote chain")
 	go msngr.readLoop()
 }
 
@@ -149,6 +142,6 @@ func (n *discoveryNotifee) HandlePeerFound(pi peer.AddrInfo) {
 // This lets us automatically discover peers on the same LAN and connect to them.
 func setupDiscovery(h host.Host) error {
 	// setup mDNS discovery to find local peers
-	s := mdns.NewMdnsService(h, DiscoveryServiceTag, &discoveryNotifee{h: h})
+	s := mdns.NewMdnsService(h, "", &discoveryNotifee{h: h})
 	return s.Start()
 }
