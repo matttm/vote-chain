@@ -2,7 +2,7 @@ package main
 
 import (
 	"log"
-	"net/http"
+	// "net/http"?
 	"os"
 
 	cors "github.com/rs/cors"
@@ -38,5 +38,7 @@ func main() {
 
 	router.Mount("/ballot", ballotController.Router())
 	log.Printf("Vote chain is listening on http://localhost:%s/", port)
-	log.Fatal(http.ListenAndServe(":"+port, router))
+	// log.Fatal(http.ListenAndServe(":"+port, router))
+	for {
+	}
 }
