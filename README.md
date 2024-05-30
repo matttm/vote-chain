@@ -1,6 +1,6 @@
 # vote-chain
 
-Development Status: Active
+Development Status: Inactive
 
 ## Description
 
